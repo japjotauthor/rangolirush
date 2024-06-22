@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rangoli Rush</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: url('background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ccc;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-family: 'Your Traditional Font', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+        }
+
+        .header button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .header button:hover {
+            background-color: #218838;
+        }
+
+        .board {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .pile {
+            width: 100px;
+            height: 140px;
+            border: 2px dashed #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: #777;
+            border-radius: 10px;
+            transition: all 0.3s;
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .pile:hover {
+            border-color: #333;
+            color: #333;
+        }
+
+        .hand {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .card {
+            width: 60px;
+            height: 90px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-weight: bold;
+            font-size: 18px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .card.number {
+            background-color: #ff6f61;
+            font-family: 'Your Traditional Font', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+        }
+
+        .card.special {
+            background-color: #ffcc00;
+            background-size: cover;
+        }
+
+        .card:hover {
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                width: 50px;
+                height: 75px;
+            }
+        }
+    </style>
+    <link rel="icon" type="image/png" href="path-to-your-favicon.png">
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>Rangoli Rush</h1>
+            <button id="startGame">Start Game</button>
+        </div>
+        <div class="board">
+            <div class="pile discard-pile" id="discardPile">Discard</div>
+            <div class="pile draw-pile" id="drawPile">Draw</div>
+        </div>
+        <div class="hand" id="playerHand"></div>
+    </div>
+    <script>
+        const colors = ['red', 'yellow', 'green', 'blue', 'purple'];
+        const specialCardIcons = {
+            'Diya': 'diya.png',
+            'Charkha': 'charkha.png',
+            'Peacock Feather': 'feather.png',
+            'Festival Card': 'Skycracker.png',
+            'Rangoli Burst': 'rangoli.png',
+            'Kite': 'kite.png'
+        };
+        let playerHand = [];
+        let discardPile = [];
+        let drawPile = [];
+
+        document.getElementById('startGame').addEventListener('click', startGame);
+
+        function startGame() {
+            // Initialize the deck
+            drawPile = createDeck();
+            shuffle(drawPile);
+
+            // Deal initial cards
+            playerHand = drawCards(7);
+            discardPile = [drawPile.pop()];
+            updateUI();
+        }
+
+        function createDeck() {
+            const deck = [];
+            // Add number cards
+            for (const color of colors) {
+                for (let i = 1; i <= 9; i++) {
+                    deck.push({ type: 'number', color, value: i });
+                }
+            }
+            // Add special cards
+            for (const color of colors) {
+                for (const special in specialCardIcons) {
+                    deck.push({ type: 'special', color, value: special, icon: specialCardIcons[special] });
+                }
+            }
+            return deck;
+        }
+
+        function shuffle(deck) {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+        }
+
+        function drawCards(count) {
+            const cards = [];
+            for (let i = 0; i < count; i++) {
+                cards.push(drawPile.pop());
+            }
+            return cards;
+        }
+
+        function updateUI() {
+            const playerHandElement = document.getElementById('playerHand');
+            playerHandElement.innerHTML = '';
+            playerHand.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card';
+                if (card.type === 'special') {
+                    cardElement.classList.add('special');
+                    cardElement.style.backgroundImage = `url(${card.icon})`;
+                } else {
+                    cardElement.classList.add('number');
+                    cardElement.style.backgroundColor = card.color;
+                    cardElement.innerHTML = card.value;
+                }
+                cardElement.addEventListener('click', () => playCard(index));
+                playerHandElement.appendChild(cardElement);
+            });
+
+            const discardPileElement = document.getElementById('discardPile');
+            discardPileElement.innerHTML = '';
+            if (discardPile.length > 0) {
+                const topCard = discardPile[discardPile.length - 1];
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card';
+                cardElement.style.backgroundColor = topCard.color;
+                cardElement.innerHTML = topCard.type === 'number' ? topCard.value : topCard.value;
+                discardPileElement.appendChild(cardElement);
+            } else {
+                discardPileElement.innerHTML = 'Discard';
+            }
+
+            const drawPileElement = document.getElementById('drawPile');
+            drawPileElement.innerHTML = '<div class="card draw-card" onclick="drawCard()">Draw</div>';
+        }
+
+        function playCard(index) {
+            const card = playerHand[index];
+            const topCard = discardPile[discardPile.length - 1];
+            if (card.color === topCard.color || card.value === topCard.value || card.type === 'special') {
+                discardPile.push(card);
+                playerHand.splice(index, 1);
+                if (playerHand.length === 0) {
+                    alert('You win!');
+                    startGame();
+                }
+                updateUI();
+            } else {
+                alert('Invalid move!');
+            }
+        }
+
+        function drawCard() {
+            if (drawPile.length > 0) {
+                playerHand.push(drawPile.pop());
+                updateUI();
+            }
+        }
+    </script>
+</body>
+</html>
